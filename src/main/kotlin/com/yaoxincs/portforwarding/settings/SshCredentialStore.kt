@@ -35,59 +35,47 @@ class SshCredentialStore {
             return connection.copy(
                 password = "",
                 passphrase = "",
-                savePassword = false,
-                savePassphrase = false,
             )
         }
 
-        val memoryOnly = PasswordSafe.instance.isPasswordStoredOnlyInMemory(attributes, credentials)
         val secret = credentials.getPasswordAsString().orEmpty()
         return when (connection.authenticationType) {
             SshAuthenticationType.PASSWORD -> connection.copy(
                 password = secret,
                 passphrase = "",
-                savePassword = !memoryOnly,
-                savePassphrase = false,
             )
             SshAuthenticationType.KEY_PAIR -> connection.copy(
                 password = "",
                 passphrase = secret,
-                savePassword = false,
-                savePassphrase = !memoryOnly,
             )
             SshAuthenticationType.OPENSSH_AGENT -> connection.copy(
                 password = "",
                 passphrase = "",
-                savePassword = false,
-                savePassphrase = false,
                 useOpenSshConfig = true,
             )
         }
     }
 
     private fun persistSecrets(connection: SshConnectionState) {
-        val memoryOnly = when (connection.authenticationType) {
-            SshAuthenticationType.PASSWORD -> !connection.savePassword
-            SshAuthenticationType.KEY_PAIR -> !connection.savePassphrase
-            SshAuthenticationType.OPENSSH_AGENT -> true
-        }
         val secret = when (connection.authenticationType) {
             SshAuthenticationType.PASSWORD -> connection.password
             SshAuthenticationType.KEY_PAIR -> connection.passphrase
-            SshAuthenticationType.OPENSSH_AGENT -> null
+            SshAuthenticationType.OPENSSH_AGENT -> return
         }
         PasswordSafe.instance.set(
-            credentialAttributes(connection, memoryOnly),
+            credentialAttributes(connection, memoryOnly = false),
             Credentials(connection.userName.trim().ifEmpty { null }, secret),
         )
     }
 
     private fun clearSecrets(connection: SshConnectionState) {
         SshAuthenticationType.entries.forEach { authType ->
-            PasswordSafe.instance.set(
-                credentialAttributes(connection.copy(authenticationType = authType), memoryOnly = false),
-                null,
-            )
+            listOf(false, true).forEach { memoryOnly ->
+                PasswordSafe.instance.set(
+                    credentialAttributes(connection.copy(authenticationType = authType), memoryOnly),
+                    null,
+                )
+            }
         }
     }
 

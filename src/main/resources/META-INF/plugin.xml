@@ -9,6 +9,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.yaoxincs.portforwarding.settings.SshPortForwardingSettings"/>
         <applicationService serviceImplementation="com.yaoxincs.portforwarding.settings.SshCredentialStore"/>
+        <projectService serviceImplementation="com.yaoxincs.portforwarding.settings.SshProjectPortForwardingSettings"/>
         <postStartupActivity implementation="com.yaoxincs.portforwarding.runtime.SshProjectTunnelAutostartActivity"/>
         <applicationConfigurable
                 parentId="tools"

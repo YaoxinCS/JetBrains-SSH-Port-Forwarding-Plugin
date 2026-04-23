@@ -2,24 +2,22 @@ package com.yaoxincs.portforwarding.settings
 
 import com.yaoxincs.portforwarding.model.SshPortForwardingState
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.SerializablePersistentStateComponent
-import com.intellij.openapi.components.SettingsCategory
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.openapi.components.StoragePathMacros
+import com.intellij.openapi.project.Project
 
 @Service(Service.Level.PROJECT)
-@State(
-    name = "JetBrainsSshPortForwardingProjectSettings",
-    storages = [Storage(StoragePathMacros.WORKSPACE_FILE)],
-    category = SettingsCategory.TOOLS,
-)
-class SshProjectPortForwardingSettings :
-    SerializablePersistentStateComponent<SshPortForwardingState>(SshPortForwardingState()) {
+class SshProjectPortForwardingSettings(project: Project) {
 
-    fun stateSnapshot(): SshPortForwardingState = state
+    private val lock = Any()
+    private val storagePath = SshPortForwardingFileStorage.projectStoragePath(project)
 
-    fun replaceState(newState: SshPortForwardingState) {
-        updateState { newState }
+    private var state = SshPortForwardingFileStorage.read(storagePath)
+
+    fun stateSnapshot(): SshPortForwardingState = synchronized(lock) { state }
+
+    fun replaceState(newState: SshPortForwardingState): Boolean {
+        val nextState = synchronized(lock) {
+            newState.also { state = it }
+        }
+        return SshPortForwardingFileStorage.write(storagePath, nextState)
     }
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1] - 2026-04-23
+
+### Fixed
+
+- Store SSH session and tunnel definitions in plugin-managed XML files instead of IntelliJ persistent state files.
+- Always save SSH passwords and key passphrases through Password Safe and remove the save-secret checkboxes.
+
 ## [0.1.0] - 2026-04-23
 
 ### Added

@@ -67,8 +67,6 @@ class SshPortForwardingConfigurable : SearchableConfigurable, Configurable.NoScr
                     } else {
                         ""
                     },
-                    savePassword = connection.authenticationType == SshAuthenticationType.PASSWORD && connection.savePassword,
-                    savePassphrase = connection.authenticationType == SshAuthenticationType.KEY_PAIR && connection.savePassphrase,
                     useOpenSshConfig = connection.useOpenSshConfig || connection.authenticationType == SshAuthenticationType.OPENSSH_AGENT,
                     port = connection.port.coerceIn(1, 65535),
                     keepAliveIntervalSeconds = connection.keepAliveIntervalSeconds.coerceAtLeast(1),
@@ -99,10 +97,10 @@ class SshPortForwardingConfigurable : SearchableConfigurable, Configurable.NoScr
             globalConnections(persistedState)
         }
 
-        settings.replaceState(SshPortForwardingState(applicationConnections))
         currentProjectSettings(project)?.replaceState(SshPortForwardingState(projectScopedConnections))
+        settings.replaceState(SshPortForwardingState(applicationConnections))
         currentState = newState
-        persistSecretsAndSaveAsync(previousCombined, newState, project)
+        persistSecretsAsync(previousCombined, newState)
     }
 
     private fun combinedState(project: Project? = currentProject()): SshPortForwardingState {
@@ -124,16 +122,12 @@ class SshPortForwardingConfigurable : SearchableConfigurable, Configurable.NoScr
     private fun projectConnections(state: SshPortForwardingState): List<SshConnectionState> =
         state.connections.filter(SshConnectionState::projectScoped).map { it.copy(projectScoped = true) }
 
-    private fun persistSecretsAndSaveAsync(
+    private fun persistSecretsAsync(
         previousState: SshPortForwardingState,
         draftState: SshPortForwardingState,
-        project: Project?,
     ) {
-        val app = ApplicationManager.getApplication()
-        app.executeOnPooledThread {
+        ApplicationManager.getApplication().executeOnPooledThread {
             credentialStore.persistSecrets(previousState, draftState)
-            project?.save()
-            app.saveSettings()
         }
     }
 

@@ -44,10 +44,8 @@ class SshConnectionDialog(
     private val authenticationTypeCombo = JComboBox(SshAuthenticationType.entries.toTypedArray())
     private val parseConfigCheckBox = JBCheckBox(PortForwardingBundle.message("dialog.connection.parse.config"), initialConnection.useOpenSshConfig)
     private val passwordField = JPasswordField(initialConnection.password)
-    private val savePasswordCheckBox = JBCheckBox(PortForwardingBundle.message("dialog.connection.save.password"), initialConnection.savePassword)
     private val privateKeyField = TextFieldWithBrowseButton()
     private val passphraseField = JPasswordField(initialConnection.passphrase)
-    private val savePassphraseCheckBox = JBCheckBox(PortForwardingBundle.message("dialog.connection.save.passphrase"), initialConnection.savePassphrase)
     private val authenticationCards = JPanel(CardLayout())
     private val testConnectionButton = javax.swing.JButton(PortForwardingBundle.message("button.test.connection"))
     private val testConnectionStatusLabel = JBLabel(" ")
@@ -106,10 +104,8 @@ class SshConnectionDialog(
             authenticationType = authenticationTypeCombo.selectedItem as? SshAuthenticationType ?: initialConnection.authenticationType,
             useOpenSshConfig = parseConfigCheckBox.isSelected,
             password = String(passwordField.password),
-            savePassword = savePasswordCheckBox.isSelected,
             privateKeyPath = privateKeyField.text,
             passphrase = String(passphraseField.password),
-            savePassphrase = savePassphraseCheckBox.isSelected,
             sendKeepAliveMessages = keepAliveCheckBox.isSelected,
             keepAliveIntervalSeconds = keepAliveSecondsField.text.toIntOrNull()?.coerceAtLeast(1) ?: 300,
             strictHostKeyCheckingEnabled = strictHostKeyCheckingCheckBox.isSelected,
@@ -243,10 +239,8 @@ class SshConnectionDialog(
                 add(JBLabel(PortForwardingBundle.message("dialog.connection.password")), c)
                 c.gridx = 1
                 c.weightx = 1.0
+                c.gridwidth = 2
                 add(passwordField, c)
-                c.gridx = 2
-                c.weightx = 0.0
-                add(savePasswordCheckBox, c)
             },
             SshAuthenticationType.PASSWORD.name,
         )
@@ -271,11 +265,9 @@ class SshConnectionDialog(
                 c.weightx = 0.0
                 add(JBLabel(PortForwardingBundle.message("dialog.connection.passphrase")), c)
                 c.gridx = 1
+                c.gridwidth = 2
                 c.weightx = 1.0
                 add(passphraseField, c)
-                c.gridx = 2
-                c.weightx = 0.0
-                add(savePassphraseCheckBox, c)
             },
             SshAuthenticationType.KEY_PAIR.name,
         )
