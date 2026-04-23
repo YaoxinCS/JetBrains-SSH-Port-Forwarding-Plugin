@@ -1,0 +1,19 @@
+.DS_Store
+.gradle
+.agents/
+.idea/
+.intellijPlatform
+.kotlin
+.run
+build
+test-runtime/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# IDE / local runtime logs
+*.log

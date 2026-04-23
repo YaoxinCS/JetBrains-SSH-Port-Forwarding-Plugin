@@ -1,0 +1,22 @@
+<idea-plugin url="https://github.com/YaoxinCS/JetBrains-SSH-Port-Forwarding-Plugin">
+    <id>com.yaoxincs.portforwarding</id>
+    <resource-bundle>messages.PortForwardingBundle</resource-bundle>
+    <name>Port Forwarding</name>
+    <vendor url="https://github.com/YaoxinCS/JetBrains-SSH-Port-Forwarding-Plugin">YaoxinCS</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.yaoxincs.portforwarding.settings.SshPortForwardingSettings"/>
+        <applicationService serviceImplementation="com.yaoxincs.portforwarding.settings.SshCredentialStore"/>
+        <projectService serviceImplementation="com.yaoxincs.portforwarding.settings.SshProjectPortForwardingSettings"/>
+        <postStartupActivity implementation="com.yaoxincs.portforwarding.runtime.SshProjectTunnelAutostartActivity"/>
+        <applicationConfigurable
+                parentId="tools"
+                id="com.yaoxincs.portforwarding.settings"
+                key="settings.display.name"
+                bundle="messages.PortForwardingBundle"
+                instance="com.yaoxincs.portforwarding.settings.SshPortForwardingConfigurable"/>
+        <notificationGroup id="port.forwarding.notifications" displayType="BALLOON" isLogByDefault="true"/>
+    </extensions>
+</idea-plugin>
